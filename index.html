@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="theme-color" content="#0a0a0a" />
+  <title>Attic Vent · IRC R806</title>
+  <link rel="manifest" href="manifest.json" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+    :root {
+      --bg: #0a0a0a;
+      --bg2: #141414;
+      --bg3: #1e1e1e;
+      --border: #2a2a2a;
+      --border2: #333;
+      --orange: #f97316;
+      --orange-dim: rgba(249,115,22,0.12);
+      --orange-glow: rgba(249,115,22,0.25);
+      --green: #22c55e;
+      --green-dim: rgba(34,197,94,0.1);
+      --red: #ef4444;
+      --red-dim: rgba(239,68,68,0.1);
+      --yellow: #eab308;
+      --yellow-dim: rgba(234,179,8,0.1);
+      --text: #f5f5f5;
+      --text2: #a0a0a0;
+      --text3: #666;
+    }
+
+    html { background: var(--bg); }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100dvh;
+      padding-bottom: 100px;
+    }
+
+    /* ── HEADER ── */
+    .header {
+      padding: calc(env(safe-area-inset-top, 16px) + 12px) 16px 14px;
+      background: linear-gradient(180deg, #1a0d00 0%, var(--bg) 100%);
+      border-bottom: 1px solid var(--border);
+    }
+    .header-top {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 2px;
+    }
+    .header-icon {
+      width: 38px; height: 38px;
+      background: var(--orange);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+      box-shadow: 0 0 16px var(--orange-glow);
+    }
+    .header h1 { font-size: 19px; font-weight: 800; letter-spacing: -.3px; }
+    .header h1 span { color: var(--orange); }
+    .header-sub { font-size: 12px; color: var(--text2); margin-left: 50px; margin-top: 1px; }
+
+    /* ── BOTTOM TABS ── */
+    .tabs {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      display: flex;
+      background: rgba(10,10,10,0.95);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-top: 1px solid var(--border);
+      padding-bottom: env(safe-area-inset-bottom, 0);
+      z-index: 100;
+    }
+    .tab {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      padding: 10px 4px 8px;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      touch-action: manipulation;
+      color: var(--text3);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: .3px;
+      text-transform: uppercase;
+      transition: color .2s;
+    }
+    .tab-icon { font-size: 22px; line-height: 1; transition: transform .2s; }
+    .tab.active { color: var(--orange); }
+    .tab.active .tab-icon { transform: scale(1.1); }
+
+    /* ── SCREENS ── */
+    .screen { display: none; padding: 14px 14px; max-width: 600px; margin: 0 auto; }
+    .screen.active { display: block; }
+
+    /* ── CARDS ── */
+    .card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px;
+      margin-bottom: 10px;
+    }
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .card-header-icon {
+      width: 32px; height: 32px;
+      background: var(--orange-dim);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+    .card-title { font-size: 14px; font-weight: 700; letter-spacing: .2px; }
+    .card-desc { font-size: 12px; color: var(--text2); margin-top: 1px; }
+
+    /* ── FORM ── */
+    .field { margin-bottom: 10px; }
+    .field:last-child { margin-bottom: 0; }
+    .field-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text2);
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .field-label span { font-size: 11px; color: var(--text3); font-weight: 400; }
+
+    input[type="number"], select {
+      width: 100%;
+      padding: 11px 13px;
+      background: var(--bg3);
+      border: 1.5px solid var(--border2);
+      border-radius: 10px;
+      font-size: 16px;
+      color: var(--text);
+      appearance: none;
+      -webkit-appearance: none;
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    input[type="number"]:focus, select:focus {
+      border-color: var(--orange);
+      box-shadow: 0 0 0 3px var(--orange-dim);
+    }
+    input[type="number"]::placeholder { color: var(--text3); }
+    select option { background: #1e1e1e; }
+
+    /* ── RADIO TOGGLE ── */
+    .toggle-group { display: flex; gap: 8px; }
+    .toggle-btn {
+      flex: 1;
+      padding: 9px 10px;
+      background: var(--bg3);
+      border: 1.5px solid var(--border2);
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text2);
+      cursor: pointer;
+      touch-action: manipulation;
+      transition: all .2s;
+      text-align: center;
+    }
+    .toggle-btn.active {
+      background: var(--orange-dim);
+      border-color: var(--orange);
+      color: var(--orange);
+    }
+
+    /* ── CODE NOTE ── */
+    .code-note {
+      background: var(--bg3);
+      border-left: 3px solid var(--orange);
+      border-radius: 0 8px 8px 0;
+      padding: 7px 10px;
+      font-size: 11px;
+      color: var(--text2);
+      line-height: 1.4;
+      margin-top: 8px;
+    }
+
+    /* ── VENT LIST ── */
+    .vent-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      margin-bottom: 8px;
+    }
+    .vent-role-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .vent-role-dot.intake { background: #3b82f6; }
+    .vent-role-dot.exhaust { background: var(--red); }
+    .vent-info { flex: 1; min-width: 0; }
+    .vent-name { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .vent-detail { font-size: 12px; color: var(--text2); margin-top: 2px; }
+    .vent-nfa-val { font-size: 14px; font-weight: 700; color: var(--orange); white-space: nowrap; }
+    .vent-del {
+      width: 30px; height: 30px;
+      border-radius: 8px;
+      border: none;
+      background: var(--red-dim);
+      color: var(--red);
+      font-size: 16px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      touch-action: manipulation;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 16px 20px;
+      color: var(--text3);
+    }
+    .empty-state .empty-icon { font-size: 28px; margin-bottom: 6px; }
+    .empty-state p { font-size: 14px; line-height: 1.5; }
+
+    /* ── TOTALS ROW ── */
+    .totals-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .total-chip {
+      flex: 1;
+      background: var(--bg3);
+      border: 1px solid var(--border2);
+      border-radius: 8px;
+      padding: 10px;
+      text-align: center;
+    }
+    .total-chip-label { font-size: 10px; color: var(--text3); font-weight: 600; text-transform: uppercase; letter-spacing: .5px; }
+    .total-chip-val { font-size: 15px; font-weight: 800; color: var(--orange); margin-top: 2px; }
+
+    /* ── ADD VENT FORM ── */
+    .add-vent-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 18px;
+      margin-bottom: 14px;
+    }
+
+    .pav-warning {
+      background: var(--yellow-dim);
+      border: 1px solid rgba(234,179,8,.3);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 12px;
+      color: var(--yellow);
+      margin-bottom: 12px;
+      display: none;
+    }
+
+    /* ── MAIN BUTTON ── */
+    .btn-main {
+      width: 100%;
+      padding: 15px;
+      background: var(--orange);
+      color: #000;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 800;
+      cursor: pointer;
+      touch-action: manipulation;
+      transition: opacity .15s, transform .1s;
+      letter-spacing: .2px;
+    }
+    .btn-main:active { opacity: .85; transform: scale(.98); }
+
+    .btn-ghost {
+      width: 100%;
+      padding: 13px;
+      background: transparent;
+      color: var(--orange);
+      border: 1.5px solid var(--orange);
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      touch-action: manipulation;
+      transition: background .15s;
+      margin-bottom: 14px;
+    }
+    .btn-ghost:active { background: var(--orange-dim); }
+
+    /* ── RESULTS ── */
+    .status-card {
+      border-radius: 16px;
+      padding: 18px;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      border: 1px solid;
+    }
+    .status-card.ok { background: var(--green-dim); border-color: rgba(34,197,94,.3); }
+    .status-card.fail { background: var(--red-dim); border-color: rgba(239,68,68,.3); }
+    .status-card.warn { background: var(--yellow-dim); border-color: rgba(234,179,8,.3); }
+    .status-big-icon { font-size: 36px; line-height: 1; flex-shrink: 0; }
+    .status-title { font-size: 16px; font-weight: 800; }
+    .status-title.ok { color: var(--green); }
+    .status-title.fail { color: var(--red); }
+    .status-sub { font-size: 13px; color: var(--text2); margin-top: 4px; line-height: 1.5; }
+
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 11px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
+    }
+    .stat-row:last-child { border-bottom: none; }
+    .stat-label { color: var(--text2); }
+    .stat-val { font-weight: 700; }
+    .stat-val.orange { color: var(--orange); }
+    .stat-val.green { color: var(--green); }
+    .stat-val.red { color: var(--red); }
+
+    .section-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      color: var(--text3);
+      margin: 14px 0 8px;
+    }
+
+    /* ── PROGRESS ── */
+    .progress-wrap { margin: 12px 0 4px; }
+    .progress-header { display: flex; justify-content: space-between; font-size: 12px; color: var(--text2); margin-bottom: 6px; }
+    .progress-track { height: 8px; background: var(--bg3); border-radius: 99px; overflow: hidden; }
+    .progress-fill { height: 100%; border-radius: 99px; transition: width .6s cubic-bezier(.4,0,.2,1); }
+    .progress-fill.green { background: var(--green); }
+    .progress-fill.red { background: var(--red); }
+    .progress-fill.orange { background: var(--orange); }
+
+    /* ── SUGGESTION CHIPS ── */
+    .suggestion-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 14px;
+      background: var(--bg3);
+      border: 1px solid var(--border2);
+      border-radius: 10px;
+      margin-bottom: 8px;
+    }
+    .suggestion-label { font-size: 13px; color: var(--text2); }
+    .suggestion-val { font-size: 14px; font-weight: 800; color: var(--orange); }
+
+    /* ── INFO TAB ── */
+    .info-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; padding: 18px; margin-bottom: 14px; }
+    .info-title { font-size: 15px; font-weight: 800; margin-bottom: 10px; }
+    .info-body { font-size: 13px; color: var(--text2); line-height: 1.65; }
+    .ref-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 4px; }
+    .ref-table th { text-align: left; padding: 8px 10px; font-size: 11px; text-transform: uppercase; letter-spacing: .5px; color: var(--text3); border-bottom: 1px solid var(--border); }
+    .ref-table td { padding: 10px 10px; border-bottom: 1px solid var(--border); color: var(--text2); }
+    .ref-table tr:last-child td { border-bottom: none; }
+    .ref-table td:first-child { color: var(--text); font-weight: 500; }
+    .ref-table td:nth-child(2) { color: var(--orange); font-weight: 700; }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 99px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .4px;
+    }
+    .badge-in { background: rgba(59,130,246,.15); color: #60a5fa; }
+    .badge-ex { background: var(--red-dim); color: #f87171; }
+
+    .disclaimer {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-size: 12px;
+      color: var(--text3);
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-top">
+    <div class="header-icon">🏠</div>
+    <div>
+      <h1>Attic <span>Vent</span> Calc</h1>
+    </div>
+  </div>
+  <div class="header-sub">IRC Section R806 · Houston, TX</div>
+</div>
+
+<!-- SCREENS -->
+
+<!-- ══════════════ ATTIC ══════════════ -->
+<div id="tab-attic" class="screen active">
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-header-icon">📐</div>
+      <div>
+        <div class="card-title">Attic Floor Area</div>
+        <div class="card-desc">Measure the total footprint of the attic space</div>
+      </div>
+    </div>
+    <div class="field">
+      <div class="field-label">Floor area <span>in square feet</span></div>
+      <input type="number" id="atticArea" placeholder="e.g. 1500" inputmode="decimal" />
+    </div>
+    <div class="field">
+      <div class="field-label">Roof pitch</div>
+      <select id="roofPitch">
+        <option value="flat">Flat / Low (≤ 2:12)</option>
+        <option value="low" selected>Low slope (3:12 – 6:12)</option>
+        <option value="steep">Steep (7:12 and above)</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-header-icon">🛡️</div>
+      <div>
+        <div class="card-title">Vapor Retarder</div>
+        <div class="card-desc">Affects the required ventilation ratio</div>
+      </div>
+    </div>
+    <div class="field">
+      <div class="field-label">Class I or II vapor retarder installed on warm side?</div>
+      <div class="toggle-group">
+        <button class="toggle-btn active" id="rb-no" onclick="setVapor('no')">No</button>
+        <button class="toggle-btn" id="rb-yes" onclick="setVapor('yes')">Yes</button>
+      </div>
+    </div>
+    <div class="code-note" id="ratio-info">
+      📐 <strong style="color:var(--orange)">1/150 ratio</strong> — No vapor retarder.<br>
+      Required NFA = Attic area ÷ 150
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-header-icon">⚖️</div>
+      <div>
+        <div class="card-title">Intake / Exhaust Split</div>
+        <div class="card-desc">IRC R806.3 requires 40–60% at each level</div>
+      </div>
+    </div>
+    <div class="field">
+      <div class="toggle-group">
+        <button class="toggle-btn active" id="rb-balanced" onclick="setBalance('balanced')">Balanced 50/50</button>
+        <button class="toggle-btn" id="rb-custom" onclick="setBalance('custom')">Custom %</button>
+      </div>
+    </div>
+    <div id="custom-split-wrap" style="display:none">
+      <div class="field">
+        <div class="field-label">Intake (soffit) % <span>40–60 recommended</span></div>
+        <input type="number" id="intakePct" value="50" min="10" max="90" inputmode="decimal" />
+      </div>
+    </div>
+  </div>
+
+  <button class="btn-main" onclick="showTab('vents')">Next: Add Existing Vents →</button>
+</div>
+
+<!-- ══════════════ VENTS ══════════════ -->
+<div id="tab-vents" class="screen">
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-header-icon">🔵</div>
+      <div>
+        <div class="card-title">Existing Vents</div>
+        <div class="card-desc">All ventilation openings currently installed</div>
+      </div>
+    </div>
+    <div id="vent-list">
+      <div class="empty-state">
+        <p>No vents added yet. Use the form below.</p>
+      </div>
+    </div>
+    <div id="vent-totals" style="display:none">
+      <div class="totals-row">
+        <div class="total-chip">
+          <div class="total-chip-label">🔵 Intake</div>
+          <div class="total-chip-val" id="total-intake-display">0</div>
+        </div>
+        <div class="total-chip">
+          <div class="total-chip-label">🔴 Exhaust</div>
+          <div class="total-chip-val" id="total-exhaust-display">0</div>
+        </div>
+        <div class="total-chip">
+          <div class="total-chip-label">⚡ Total</div>
+          <div class="total-chip-val" id="total-combined-display">0</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="add-vent-card">
+    <div class="card-header">
+      <div class="card-header-icon">➕</div>
+      <div>
+        <div class="card-title">Add a Vent</div>
+        <div class="card-desc">Select type or enter custom NFA</div>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">Vent type</div>
+      <select id="ventType" onchange="onVentTypeChange()">
+        <optgroup label="── 🔵 Intake — Soffit Vents ──">
+          <option value="soffit-cont" data-nfa="9" data-unit="per lin. ft" data-role="intake">Soffit vent, continuous strip (per lin. ft) · 9 sq in/LF</option>
+          <option value="soffit-8x16" data-nfa="55" data-unit="each" data-role="intake">Soffit vent 8×16 baffle · 55 sq in</option>
+          <option value="soffit-16x8" data-nfa="50" data-unit="each" data-role="intake">Soffit vent 16×8 · 50 sq in</option>
+          <option value="soffit-4x16" data-nfa="26" data-unit="each" data-role="intake">Soffit vent 4×16 · 26 sq in</option>
+          <option value="soffit-6x16" data-nfa="38" data-unit="each" data-role="intake">Soffit vent 6×16 · 38 sq in</option>
+          <option value="soffit-8x8" data-nfa="34" data-unit="each" data-role="intake">Soffit vent 8×8 square · 34 sq in</option>
+          <option value="soffit-round3" data-nfa="18" data-unit="each" data-role="intake">Soffit vent round 3″ · 18 sq in</option>
+          <option value="soffit-round4" data-nfa="38" data-unit="each" data-role="intake">Soffit vent round 4″ · 38 sq in</option>
+        </optgroup>
+        <optgroup label="── 🔵 Intake — Eave &amp; Drip Edge ──">
+          <option value="under-eave-4" data-nfa="75" data-unit="each" data-role="intake">Under-eave vent 4″ round · 75 sq in</option>
+          <option value="under-eave-3" data-nfa="50" data-unit="each" data-role="intake">Under-eave vent 3″ round · 50 sq in</option>
+          <option value="drip-edge-vent" data-nfa="9" data-unit="per lin. ft" data-role="intake">Drip edge vent (per lin. ft) · 9 sq in/LF</option>
+          <option value="fascia-vent" data-nfa="11" data-unit="per lin. ft" data-role="intake">Fascia vent strip (per lin. ft) · 11 sq in/LF</option>
+          <option value="rafter-baffle" data-nfa="0" data-unit="each" data-role="intake">Rafter baffle / chute (enter NFA manually)</option>
+        </optgroup>
+        <optgroup label="── 🔴 Exhaust — Ridge Vents ──">
+          <option value="ridge-vent" data-nfa="18" data-unit="per lin. ft" data-role="exhaust">Ridge vent standard (per lin. ft) · 18 sq in/LF</option>
+          <option value="ridge-vent-22" data-nfa="22" data-unit="per lin. ft" data-role="exhaust">Ridge vent high-flow (per lin. ft) · 22 sq in/LF</option>
+          <option value="hip-vent" data-nfa="14" data-unit="per lin. ft" data-role="exhaust">Hip-ridge vent (per lin. ft) · 14 sq in/LF</option>
+          <option value="ridge-shingle" data-nfa="18" data-unit="per lin. ft" data-role="exhaust">Shingle-over ridge vent (per lin. ft) · 18 sq in/LF</option>
+        </optgroup>
+        <optgroup label="── 🔴 Exhaust — Roof &amp; Box Vents ──">
+          <option value="roof-turtle-sm" data-nfa="50" data-unit="each" data-role="exhaust">Roof vent / turtle, small · 50 sq in</option>
+          <option value="roof-turtle-lg" data-nfa="75" data-unit="each" data-role="exhaust">Roof vent / turtle, large · 75 sq in</option>
+          <option value="roof-turtle-xl" data-nfa="144" data-unit="each" data-role="exhaust">Roof vent / turtle, XL · 144 sq in</option>
+          <option value="box-vent-sm" data-nfa="50" data-unit="each" data-role="exhaust">Box vent (off-ridge), small · 50 sq in</option>
+          <option value="box-vent-lg" data-nfa="82" data-unit="each" data-role="exhaust">Box vent (off-ridge), large · 82 sq in</option>
+          <option value="louver-vent" data-nfa="144" data-unit="each" data-role="exhaust">Roof louver vent · 144 sq in</option>
+        </optgroup>
+        <optgroup label="── 🔴 Exhaust — Gable Vents ──">
+          <option value="gable-8x16" data-nfa="75" data-unit="each" data-role="exhaust">Gable vent 8×16 · 75 sq in</option>
+          <option value="gable-12x18" data-nfa="108" data-unit="each" data-role="exhaust">Gable vent 12×18 · 108 sq in</option>
+          <option value="gable-14x24" data-nfa="168" data-unit="each" data-role="exhaust">Gable vent 14×24 · 168 sq in</option>
+          <option value="gable-16x24" data-nfa="192" data-unit="each" data-role="exhaust">Gable vent 16×24 · 192 sq in</option>
+          <option value="gable-18x24" data-nfa="216" data-unit="each" data-role="exhaust">Gable vent 18×24 · 216 sq in</option>
+          <option value="gable-24x30" data-nfa="360" data-unit="each" data-role="exhaust">Gable vent 24×30 · 360 sq in</option>
+          <option value="gable-round-12" data-nfa="78" data-unit="each" data-role="exhaust">Gable vent round 12″ · 78 sq in</option>
+          <option value="gable-round-18" data-nfa="176" data-unit="each" data-role="exhaust">Gable vent round 18″ · 176 sq in</option>
+        </optgroup>
+        <optgroup label="── 🔴 Exhaust — Turbine &amp; Powered ──">
+          <option value="turbine-12" data-nfa="212" data-unit="each" data-role="exhaust">Turbine vent / whirlybird 12″ · 212 sq in</option>
+          <option value="turbine-14" data-nfa="288" data-unit="each" data-role="exhaust">Turbine vent / whirlybird 14″ · 288 sq in</option>
+          <option value="pav-1000" data-nfa="150" data-unit="each" data-role="exhaust">Power attic ventilator ~1000 CFM · 150 sq in equiv.</option>
+          <option value="pav-1500" data-nfa="220" data-unit="each" data-role="exhaust">Power attic ventilator ~1500 CFM · 220 sq in equiv.</option>
+          <option value="solar-sm" data-nfa="0" data-unit="each" data-role="exhaust">☀️ Solar vent 10W (enter NFA from label)</option>
+          <option value="solar-20w" data-nfa="150" data-unit="each" data-role="exhaust">☀️ Solar vent 20W · ~150 sq in equiv.</option>
+          <option value="solar-30w" data-nfa="220" data-unit="each" data-role="exhaust">☀️ Solar vent 30W · ~220 sq in equiv.</option>
+          <option value="solar-40w" data-nfa="300" data-unit="each" data-role="exhaust">☀️ Solar vent 40W (high-flow) · ~300 sq in equiv.</option>
+          <option value="pav-custom" data-nfa="0" data-unit="each" data-role="exhaust">Power / Solar vent (custom — enter NFA)</option>
+        </optgroup>
+        <optgroup label="── ⚙️ Custom ──">
+          <option value="custom" data-nfa="0" data-unit="each" data-role="both">Custom vent (enter NFA manually)</option>
+        </optgroup>
+      </select>
+    </div>
+
+    <div class="pav-warning" id="pav-note">
+      ⚠️ Power ventilators are rated in CFM — enter the manufacturer's NFA equivalent (typically 100–400 sq in).
+    </div>
+
+    <div id="custom-role-wrap" style="display:none">
+      <div class="field">
+        <div class="field-label">Vent role</div>
+        <select id="ventRole">
+          <option value="intake">Intake (Soffit)</option>
+          <option value="exhaust">Exhaust (Upper)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">NFA per unit <span>square inches — see vent label</span></div>
+      <input type="number" id="ventNFA" placeholder="e.g. 55" inputmode="decimal" />
+    </div>
+
+    <div class="field" style="margin-bottom:16px;">
+      <div class="field-label">Quantity <span id="ventUnit">(each)</span></div>
+      <input type="number" id="ventQty" value="1" min="1" inputmode="decimal" />
+    </div>
+
+    <button class="btn-main" onclick="addVent()">Add Vent</button>
+  </div>
+
+  <button class="btn-main" onclick="showTab('results')">Calculate Results →</button>
+</div>
+
+<!-- ══════════════ RESULTS ══════════════ -->
+<div id="tab-results" class="screen">
+  <div id="results-content">
+    <div class="empty-state" style="padding:60px 20px">
+      <div class="empty-icon">📊</div>
+      <p style="margin-bottom:20px;">Enter attic info and add vents to see your results.</p>
+      <button class="btn-main" style="max-width:240px;margin:0 auto;display:block;" onclick="showTab('attic')">Get Started →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ CODE REF ══════════════ -->
+<div id="tab-info" class="screen">
+
+  <div class="info-card">
+    <div class="info-title">📋 IRC Section R806</div>
+    <div class="info-body">
+      Enclosed attic spaces must have cross-ventilation via openings protected against weather. Net Free Area (NFA) of ventilation must meet the ratio requirements below. Houston follows the IRC with Harris County amendments.
+    </div>
+  </div>
+
+  <div class="info-card">
+    <div class="info-title">Ratio Requirements</div>
+    <div class="stat-row">
+      <span class="stat-label">No vapor retarder</span>
+      <span class="stat-val red">1 / 150</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Class I/II vapor retarder installed</span>
+      <span class="stat-val green">1 / 300</span>
+    </div>
+    <div class="stat-row" style="border:none">
+      <span class="stat-label">Balanced 40–60% intake/exhaust</span>
+      <span class="stat-val green">1 / 300 eligible</span>
+    </div>
+    <div class="code-note" style="margin-top:12px;">
+      IRC R806.2: Minimum ventilation = floor area ÷ 150. Reducible to ÷ 300 with vapor retarder + balanced split.
+    </div>
+  </div>
+
+  <div class="info-card">
+    <div class="info-title">Common Vent NFA Values</div>
+    <table class="ref-table">
+      <thead><tr><th>Vent Type</th><th>NFA</th><th>Role</th></tr></thead>
+      <tbody>
+        <tr><td colspan="3" style="color:var(--orange);font-weight:700;font-size:11px;padding:10px 10px 4px;text-transform:uppercase;letter-spacing:.5px">🔵 Intake</td></tr>
+        <tr><td>Soffit vent, continuous</td><td>9 sq in/LF</td><td><span class="badge badge-in">intake</span></td></tr>
+        <tr><td>Soffit vent 4×16</td><td>26 sq in</td><td><span class="badge badge-in">intake</span></td></tr>
+        <tr><td>Soffit vent 6×16</td><td>38 sq in</td><td><span class="badge badge-in">intake</span></td></tr>
+        <tr><td>Soffit vent 8×16 baffle</td><td>55 sq in</td><td><span class="badge badge-in">intake</span></td></tr>
+        <tr><td>Soffit vent 16×8</td><td>50 sq in</td><td><span class="badge badge-in">intake</span></td></tr>
+        <tr><td>Soffit vent round 3″</td><td>18 sq in</td><td><span class="badge badge-in">intake</span></td></tr>
+        <tr><td>Soffit vent round 4″</td><td>38 sq in</td><td><span class="badge badge-in">intake</span></td></tr>
+        <tr><td>Under-eave vent 3″ round</td><td>50 sq in</td><td><span class="badge badge-in">intake</span></td></tr>
+        <tr><td>Under-eave vent 4″ round</td><td>75 sq in</td><td><span class="badge badge-in">intake</span></td></tr>
+        <tr><td>Drip edge vent</td><td>9 sq in/LF</td><td><span class="badge badge-in">intake</span></td></tr>
+        <tr><td>Fascia vent strip</td><td>11 sq in/LF</td><td><span class="badge badge-in">intake</span></td></tr>
+        <tr><td colspan="3" style="color:var(--orange);font-weight:700;font-size:11px;padding:12px 10px 4px;text-transform:uppercase;letter-spacing:.5px">🔴 Exhaust — Ridge</td></tr>
+        <tr><td>Ridge vent standard</td><td>18 sq in/LF</td><td><span class="badge badge-ex">exhaust</span></td></tr>
+        <tr><td>Ridge vent high-flow</td><td>22 sq in/LF</td><td><span class="badge badge-ex">exhaust</span></td></tr>
+        <tr><td>Hip-ridge vent</td><td>14 sq in/LF</td><td><span class="badge badge-ex">exhaust</span></td></tr>
+        <tr><td colspan="3" style="color:var(--orange);font-weight:700;font-size:11px;padding:12px 10px 4px;text-transform:uppercase;letter-spacing:.5px">🔴 Exhaust — Roof &amp; Box</td></tr>
+        <tr><td>Roof vent / turtle, small</td><td>50 sq in</td><td><span class="badge badge-ex">exhaust</span></td></tr>
+        <tr><td>Roof vent / turtle, large</td><td>75 sq in</td><td><span class="badge badge-ex">exhaust</span></td></tr>
+        <tr><td>Roof vent / turtle, XL</td><td>144 sq in</td><td><span class="badge badge-ex">exhaust</span></td></tr>
+        <tr><td>Box vent (off-ridge), sm</td><td>50 sq in</td><td><span class="badge badge-ex">exhaust</span></td></tr>
+        <tr><td>Box vent (off-ridge), lg</td><td>82 sq in</td><td><span class="badge badge-ex">exhaust</span></td></tr>
+        <tr><td colspan="3" style="color:var(--orange);font-weight:700;font-size:11px;padding:12px 10px 4px;text-transform:uppercase;letter-spacing:.5px">🔴 Exhaust — Gable</td></tr>
+        <tr><td>Gable vent 8×16</td><td>75 sq in</td><td><span class="badge badge-ex">exhaust</span></td></tr>
+        <tr><td>Gable vent 12×18</td><td>108 sq in</td><td><span class="badge badge-ex">exhaust</span></td></tr>
+        <tr><td>Gable vent 14×24</td><td>168 sq in</td><td><span class="badge badge-ex">exhaust</span></td></tr>
+        <tr><td>Gable vent 16×24</td><td>192 sq in</td><td><span class="badge badge-ex">exhaust</span></td></tr>
+        <tr><td>Gable vent 18×24</td><td>216 sq in</td><td><span class="badge badge-ex">exhaust</span></td></tr>
+        <tr><td>Gable vent 24×30</td><td>360 sq in</td><td><span class="badge badge-ex">exhaust</span></td></tr>
+        <tr><td>Gable vent round 12″</td><td>78 sq in</td><td><span class="badge badge-ex">exhaust</span></td></tr>
+        <tr><td>Gable vent round 18″</td><td>176 sq in</td><td><span class="badge badge-ex">exhaust</span></td></tr>
+        <tr><td colspan="3" style="color:var(--orange);font-weight:700;font-size:11px;padding:12px 10px 4px;text-transform:uppercase;letter-spacing:.5px">🔴 Exhaust — Turbine &amp; Powered</td></tr>
+        <tr><td>Turbine vent 12″</td><td>212 sq in</td><td><span class="badge badge-ex">exhaust</span></td></tr>
+        <tr><td>Turbine vent 14″</td><td>288 sq in</td><td><span class="badge badge-ex">exhaust</span></td></tr>
+        <tr><td>Power ventilator ~1000 CFM</td><td>150 sq in equiv.</td><td><span class="badge badge-ex">exhaust</span></td></tr>
+        <tr><td>Power ventilator ~1500 CFM</td><td>220 sq in equiv.</td><td><span class="badge badge-ex">exhaust</span></td></tr>
+        <tr><td>☀️ Solar vent 20W</td><td>~150 sq in equiv.</td><td><span class="badge badge-ex">exhaust</span></td></tr>
+        <tr><td>☀️ Solar vent 30W</td><td>~220 sq in equiv.</td><td><span class="badge badge-ex">exhaust</span></td></tr>
+        <tr><td>☀️ Solar vent 40W high-flow</td><td>~300 sq in equiv.</td><td><span class="badge badge-ex">exhaust</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="info-card">
+    <div class="info-title">📏 What is NFA?</div>
+    <div class="info-body">
+      <strong style="color:var(--text)">Net Free Area (NFA)</strong> is the actual open area air can pass through — after accounting for screens, louvers, and baffles. Always use the NFA printed on the vent packaging, not the rough opening size. Typical screens reduce open area by 25–50%.
+    </div>
+  </div>
+
+  <div class="disclaimer">
+    ⚠️ This calculator is for estimation only. Always consult a licensed contractor or code official for permit-ready calculations. Houston follows IRC with local amendments (HCEC).
+  </div>
+</div>
+
+<!-- BOTTOM TABS -->
+<div class="tabs">
+  <button class="tab active" id="nav-attic" onclick="showTab('attic')">
+    <span class="tab-icon">🏠</span>Attic
+  </button>
+  <button class="tab" id="nav-vents" onclick="showTab('vents')">
+    <span class="tab-icon">💨</span>Vents
+  </button>
+  <button class="tab" id="nav-results" onclick="showTab('results')">
+    <span class="tab-icon">📊</span>Results
+  </button>
+  <button class="tab" id="nav-info" onclick="showTab('info')">
+    <span class="tab-icon">📋</span>Code
+  </button>
+</div>
+
+<script>
+// ─── State ─────────────────────────────────────────────
+let vapor = 'no', balance = 'balanced';
+let vents = [], ventId = 0;
+
+// ─── Tab nav ────────────────────────────────────────────
+function showTab(name) {
+  ['attic','vents','results','info'].forEach(t => {
+    document.getElementById('tab-' + t).classList.toggle('active', t === name);
+    document.getElementById('nav-' + t).classList.toggle('active', t === name);
+  });
+  if (name === 'results') buildResults();
+}
+
+// ─── Vapor toggle ───────────────────────────────────────
+function setVapor(v) {
+  vapor = v;
+  document.getElementById('rb-no').classList.toggle('active', v === 'no');
+  document.getElementById('rb-yes').classList.toggle('active', v === 'yes');
+  const el = document.getElementById('ratio-info');
+  if (v === 'yes') {
+    el.innerHTML = '📐 <strong style="color:var(--orange)">1/300 ratio</strong> — Vapor retarder installed.<br>Required NFA = Attic area ÷ 300 (if balanced ventilation met)';
+  } else {
+    el.innerHTML = '📐 <strong style="color:var(--orange)">1/150 ratio</strong> — No vapor retarder.<br>Required NFA = Attic area ÷ 150';
+  }
+}
+
+// ─── Balance toggle ─────────────────────────────────────
+function setBalance(b) {
+  balance = b;
+  document.getElementById('rb-balanced').classList.toggle('active', b === 'balanced');
+  document.getElementById('rb-custom').classList.toggle('active', b === 'custom');
+  document.getElementById('custom-split-wrap').style.display = b === 'custom' ? 'block' : 'none';
+}
+
+// ─── Vent type change ───────────────────────────────────
+function onVentTypeChange() {
+  const sel = document.getElementById('ventType');
+  const opt = sel.options[sel.selectedIndex];
+  const nfa = parseFloat(opt.dataset.nfa) || 0;
+  document.getElementById('ventNFA').value = nfa || '';
+  document.getElementById('ventUnit').textContent = '(' + (opt.dataset.unit || 'each') + ')';
+  document.getElementById('pav-note').style.display = opt.value === 'pav' ? 'block' : 'none';
+  document.getElementById('custom-role-wrap').style.display = opt.dataset.role === 'both' ? 'block' : 'none';
+}
+
+// ─── Add vent ───────────────────────────────────────────
+function addVent() {
+  const sel = document.getElementById('ventType');
+  const opt = sel.options[sel.selectedIndex];
+  const nfa = parseFloat(document.getElementById('ventNFA').value);
+  const qty = parseFloat(document.getElementById('ventQty').value) || 1;
+  let role = opt.dataset.role;
+  if (role === 'both') role = document.getElementById('ventRole').value;
+  if (!nfa || nfa <= 0) { alert('Please enter a valid NFA value.'); return; }
+  vents.push({ id: ventId++, name: opt.text, nfa, qty, role, total: nfa * qty });
+  document.getElementById('ventQty').value = 1;
+  renderVents();
+}
+
+function removeVent(id) {
+  vents = vents.filter(v => v.id !== id);
+  renderVents();
+}
+
+function renderVents() {
+  const list = document.getElementById('vent-list');
+  const totalsEl = document.getElementById('vent-totals');
+  if (vents.length === 0) {
+    list.innerHTML = '<div class="empty-state"><p>No vents added yet. Use the form below.</p></div>';
+    totalsEl.style.display = 'none';
+    return;
+  }
+  list.innerHTML = vents.map(v => `
+    <div class="vent-item">
+      <div class="vent-role-dot ${v.role}"></div>
+      <div class="vent-info">
+        <div class="vent-name">${v.name}</div>
+        <div class="vent-detail">${v.qty} × ${v.nfa} sq in · ${v.role}</div>
+      </div>
+      <div class="vent-nfa-val">${v.total} sq in</div>
+      <button class="vent-del" onclick="removeVent(${v.id})">×</button>
+    </div>`).join('');
+  const intT = vents.filter(v=>v.role==='intake').reduce((s,v)=>s+v.total,0);
+  const exT  = vents.filter(v=>v.role==='exhaust').reduce((s,v)=>s+v.total,0);
+  document.getElementById('total-intake-display').textContent  = intT.toFixed(0) + ' sq in';
+  document.getElementById('total-exhaust-display').textContent = exT.toFixed(0) + ' sq in';
+  document.getElementById('total-combined-display').textContent = (intT+exT).toFixed(0) + ' sq in';
+  totalsEl.style.display = 'block';
+}
+
+// ─── Results ────────────────────────────────────────────
+function buildResults() {
+  const area = parseFloat(document.getElementById('atticArea').value);
+  const el = document.getElementById('results-content');
+  if (!area || area <= 0) {
+    el.innerHTML = `<div class="empty-state" style="padding:60px 20px">
+      <div class="empty-icon">📊</div>
+      <p style="margin-bottom:20px;">Enter the attic floor area first.</p>
+      <button class="btn-main" style="max-width:240px;margin:0 auto;display:block;" onclick="showTab('attic')">Go to Attic →</button>
+    </div>`;
+    return;
+  }
+
+  const intakePct = balance === 'balanced' ? 50 : (parseFloat(document.getElementById('intakePct').value) || 50);
+  const exhaustPct = 100 - intakePct;
+  const ratio = vapor === 'yes' ? 300 : 150;
+
+  const reqTotal = (area / ratio) * 144;  // sq in
+  const reqIntake  = reqTotal * intakePct / 100;
+  const reqExhaust = reqTotal * exhaustPct / 100;
+
+  const hasIntake  = vents.filter(v=>v.role==='intake').reduce((s,v)=>s+v.total,0);
+  const hasExhaust = vents.filter(v=>v.role==='exhaust').reduce((s,v)=>s+v.total,0);
+  const hasTotal   = hasIntake + hasExhaust;
+
+  const defIntake  = Math.max(0, reqIntake  - hasIntake);
+  const defExhaust = Math.max(0, reqExhaust - hasExhaust);
+  const defTotal   = Math.max(0, reqTotal   - hasTotal);
+  const surpTotal  = Math.max(0, hasTotal   - reqTotal);
+
+  const ok = defTotal === 0 && defIntake === 0 && defExhaust === 0;
+  const pct = Math.min((hasTotal / reqTotal) * 100, 100);
+  const fi  = n => n.toFixed(0) + ' sq in';
+  const ff  = n => (n/144).toFixed(2) + ' sq ft';
+
+  // Status banner
+  let statusHtml = ok
+    ? `<div class="status-card ok">
+        <div class="status-big-icon">✅</div>
+        <div>
+          <div class="status-title ok">Compliant — IRC R806</div>
+          <div class="status-sub">Current ventilation meets or exceeds code requirements.</div>
+        </div>
+      </div>`
+    : `<div class="status-card fail">
+        <div class="status-big-icon">⚠️</div>
+        <div>
+          <div class="status-title fail">Not Compliant — IRC R806</div>
+          <div class="status-sub">${[
+              defIntake  > 0 ? `+${fi(defIntake)} intake needed`  : '',
+              defExhaust > 0 ? `+${fi(defExhaust)} exhaust needed` : ''
+            ].filter(Boolean).join('<br>')}
+          </div>
+        </div>
+      </div>`;
+
+  // Suggestions
+  let suggestHtml = '';
+  if (defIntake > 0 || defExhaust > 0) {
+    suggestHtml = `<div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">🔧</div>
+        <div><div class="card-title">What to Add</div></div>
+      </div>
+      ${defIntake > 0 ? `
+        <div class="section-label">Intake options — need ${fi(defIntake)}</div>
+        <div class="suggestion-item"><span class="suggestion-label">Soffit vent (continuous)</span><span class="suggestion-val">${Math.ceil(defIntake/9)} lin. ft</span></div>
+        <div class="suggestion-item"><span class="suggestion-label">Soffit vent 8×16</span><span class="suggestion-val">${Math.ceil(defIntake/55)} units</span></div>
+        <div class="suggestion-item"><span class="suggestion-label">Under-eave 4″ round</span><span class="suggestion-val">${Math.ceil(defIntake/75)} units</span></div>
+      ` : ''}
+      ${defExhaust > 0 ? `
+        <div class="section-label" style="margin-top:${defIntake>0?'14px':'0'}">Exhaust options — need ${fi(defExhaust)}</div>
+        <div class="suggestion-item"><span class="suggestion-label">Ridge vent</span><span class="suggestion-val">${Math.ceil(defExhaust/18)} lin. ft</span></div>
+        <div class="suggestion-item"><span class="suggestion-label">Roof vent / turtle (lg)</span><span class="suggestion-val">${Math.ceil(defExhaust/75)} units</span></div>
+        <div class="suggestion-item"><span class="suggestion-label">Gable vent 16×24</span><span class="suggestion-val">${Math.ceil(defExhaust/192)} units</span></div>
+      ` : ''}
+    </div>`;
+  }
+
+  el.innerHTML = `
+    ${statusHtml}
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">📐</div>
+        <div><div class="card-title">Total NFA Summary</div></div>
+      </div>
+      <div class="stat-row"><span class="stat-label">Attic area</span><span class="stat-val orange">${area.toFixed(0)} sq ft</span></div>
+      <div class="stat-row"><span class="stat-label">Code ratio</span><span class="stat-val">1 / ${ratio}</span></div>
+      <div class="stat-row"><span class="stat-label">Required NFA</span><span class="stat-val">${fi(reqTotal)} <span style="color:var(--text3);font-weight:400">(${ff(reqTotal)})</span></span></div>
+      <div class="stat-row"><span class="stat-label">Existing NFA</span><span class="stat-val ${ok?'green':'red'}">${fi(hasTotal)}</span></div>
+      <div class="stat-row" style="border:none">
+        <span class="stat-label">${defTotal > 0 ? 'Deficit' : 'Surplus'}</span>
+        <span class="stat-val ${defTotal > 0 ? 'red' : 'green'}">${defTotal > 0 ? '−'+fi(defTotal) : '+'+fi(surpTotal)}</span>
+      </div>
+      <div class="progress-wrap">
+        <div class="progress-header"><span>Coverage</span><span>${pct.toFixed(0)}%${ok?' ✓':''}</span></div>
+        <div class="progress-track">
+          <div class="progress-fill ${ok?'green':pct<50?'red':'orange'}" style="width:${pct}%"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">⚖️</div>
+        <div><div class="card-title">Intake / Exhaust Breakdown</div></div>
+      </div>
+
+      <div class="section-label">🔵 Intake (Soffit) — ${intakePct}%</div>
+      <div class="stat-row"><span class="stat-label">Required</span><span class="stat-val">${fi(reqIntake)}</span></div>
+      <div class="stat-row"><span class="stat-label">Existing</span><span class="stat-val ${defIntake===0?'green':'red'}">${fi(hasIntake)}</span></div>
+      <div class="stat-row" style="border:none"><span class="stat-label">${defIntake>0?'Deficit':'Surplus'}</span>
+        <span class="stat-val ${defIntake>0?'red':'green'}">${defIntake>0?'−'+fi(defIntake):'+'+fi(hasIntake-reqIntake)}</span></div>
+      <div class="progress-wrap">
+        <div class="progress-track">
+          <div class="progress-fill ${defIntake===0?'green':'red'}" style="width:${Math.min(reqIntake>0?(hasIntake/reqIntake)*100:0,100)}%"></div>
+        </div>
+      </div>
+
+      <div class="section-label" style="margin-top:16px">🔴 Exhaust (Ridge/Upper) — ${exhaustPct}%</div>
+      <div class="stat-row"><span class="stat-label">Required</span><span class="stat-val">${fi(reqExhaust)}</span></div>
+      <div class="stat-row"><span class="stat-label">Existing</span><span class="stat-val ${defExhaust===0?'green':'red'}">${fi(hasExhaust)}</span></div>
+      <div class="stat-row" style="border:none"><span class="stat-label">${defExhaust>0?'Deficit':'Surplus'}</span>
+        <span class="stat-val ${defExhaust>0?'red':'green'}">${defExhaust>0?'−'+fi(defExhaust):'+'+fi(hasExhaust-reqExhaust)}</span></div>
+      <div class="progress-wrap">
+        <div class="progress-track">
+          <div class="progress-fill ${defExhaust===0?'green':'red'}" style="width:${Math.min(reqExhaust>0?(hasExhaust/reqExhaust)*100:0,100)}%"></div>
+        </div>
+      </div>
+    </div>
+
+    ${suggestHtml}
+
+    <div class="disclaimer">
+      ⚠️ For estimation purposes only. Consult a licensed contractor or building official for permit-ready ventilation calculations.
+    </div>
+  `;
+}
+
+// Init
+onVentTypeChange();
+</script>
+</body>
+</html>
