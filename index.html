@@ -386,10 +386,6 @@
     .ref-table tr:last-child td { border-bottom: none; }
     .ref-table td:first-child { color: var(--text); font-weight: 500; }
     .ref-table td:nth-child(2) { color: var(--orange); font-weight: 700; }
-    .ref-table .vent-cell { display:flex; align-items:center; gap:8px; }
-    .vtb { width:48px; height:30px; flex-shrink:0; border-radius:5px; overflow:hidden; }
-    .vtb svg { width:48px; height:30px; }
-
     /* ── VENT TYPE PREVIEW ── */
     .vent-preview-card {
       display:none;
@@ -397,15 +393,17 @@
       border: 1px solid var(--border2);
       border-radius: 10px;
       margin-bottom: 10px;
-      overflow: hidden;
+      padding: 10px 12px;
     }
-    .vent-preview-img { width:100%; height:80px; }
-    .vent-preview-img svg { width:100%; height:80px; }
-    .vent-preview-label {
-      font-size:11px; color:var(--text3);
-      padding:4px 10px 6px;
-      text-align:center;
+    .vent-preview-badge {
+      display:inline-block; font-size:10px; font-weight:700;
+      padding:2px 8px; border-radius:99px; margin-bottom:6px;
+      text-transform:uppercase; letter-spacing:0.5px;
     }
+    .badge-intake { background:#1a3a22; color:#4ade80; }
+    .badge-exhaust { background:#3a1a1a; color:#f87171; }
+    .badge-baffle { background:#2e2510; color:#fbbf24; }
+    .vent-preview-desc { font-size:13px; color:var(--text2); line-height:1.5; }
 
     .badge {
       display: inline-block;
@@ -622,8 +620,8 @@
     </div>
 
     <div class="vent-preview-card" id="vent-preview-card">
-      <div class="vent-preview-img" id="vent-preview-img"></div>
-      <div class="vent-preview-label" id="vent-preview-label"></div>
+      <div class="vent-preview-badge" id="vent-preview-badge"></div>
+      <div class="vent-preview-desc" id="vent-preview-desc"></div>
     </div>
 
     <div class="pav-warning" id="pav-note">
@@ -807,29 +805,19 @@ function setBalance(b) {
   document.getElementById('custom-split-wrap').style.display = b === 'custom' ? 'block' : 'none';
 }
 
-// ─── Vent SVG illustrations ─────────────────────────────
-const VS = {
-ss:`<svg viewBox="0 0 140 55" xmlns="http://www.w3.org/2000/svg"><rect width="140" height="55" fill="#151515"/><rect x="10" y="8" width="12" height="47" fill="#2a2a2a"/><rect x="22" y="14" width="118" height="41" fill="#272727"/><rect x="22" y="24" width="118" height="16" fill="#171717"/><line x1="22" y1="24" x2="140" y2="24" stroke="#505050" stroke-width="1"/><line x1="22" y1="40" x2="140" y2="40" stroke="#505050" stroke-width="1"/><rect x="28" y="27" width="6" height="10" rx="1" fill="#080808"/><rect x="40" y="27" width="6" height="10" rx="1" fill="#080808"/><rect x="52" y="27" width="6" height="10" rx="1" fill="#080808"/><rect x="64" y="27" width="6" height="10" rx="1" fill="#080808"/><rect x="76" y="27" width="6" height="10" rx="1" fill="#080808"/><rect x="88" y="27" width="6" height="10" rx="1" fill="#080808"/><rect x="100" y="27" width="6" height="10" rx="1" fill="#080808"/><rect x="112" y="27" width="6" height="10" rx="1" fill="#080808"/><rect x="124" y="27" width="6" height="10" rx="1" fill="#080808"/></svg>`,
-
-sp:`<svg viewBox="0 0 140 55" xmlns="http://www.w3.org/2000/svg"><rect width="140" height="55" fill="#151515"/><rect x="20" y="6" width="100" height="43" rx="3" fill="#272727" stroke="#505050" stroke-width="1.5"/><rect x="27" y="13" width="86" height="29" rx="2" fill="#171717"/><rect x="31" y="17" width="10" height="9" rx="1" fill="#080808"/><rect x="46" y="17" width="10" height="9" rx="1" fill="#080808"/><rect x="61" y="17" width="10" height="9" rx="1" fill="#080808"/><rect x="76" y="17" width="10" height="9" rx="1" fill="#080808"/><rect x="91" y="17" width="10" height="9" rx="1" fill="#080808"/><rect x="106" y="17" width="7" height="9" rx="1" fill="#080808"/><rect x="31" y="30" width="10" height="9" rx="1" fill="#080808"/><rect x="46" y="30" width="10" height="9" rx="1" fill="#080808"/><rect x="61" y="30" width="10" height="9" rx="1" fill="#080808"/><rect x="76" y="30" width="10" height="9" rx="1" fill="#080808"/><rect x="91" y="30" width="10" height="9" rx="1" fill="#080808"/><rect x="106" y="30" width="7" height="9" rx="1" fill="#080808"/><circle cx="24" cy="10" r="2.5" fill="#444"/><circle cx="116" cy="10" r="2.5" fill="#444"/><circle cx="24" cy="45" r="2.5" fill="#444"/><circle cx="116" cy="45" r="2.5" fill="#444"/></svg>`,
-
-sr:`<svg viewBox="0 0 140 55" xmlns="http://www.w3.org/2000/svg"><rect width="140" height="55" fill="#151515"/><rect x="10" y="8" width="120" height="40" fill="#252525"/><circle cx="70" cy="27" r="20" fill="#171717" stroke="#505050" stroke-width="2"/><circle cx="70" cy="27" r="14" fill="#171717" stroke="#404040" stroke-width="1"/><circle cx="70" cy="27" r="7" fill="#171717" stroke="#404040" stroke-width="1"/><line x1="70" y1="7" x2="70" y2="14" stroke="#404040" stroke-width="1.5"/><line x1="70" y1="40" x2="70" y2="47" stroke="#404040" stroke-width="1.5"/><line x1="50" y1="27" x2="57" y2="27" stroke="#404040" stroke-width="1.5"/><line x1="83" y1="27" x2="90" y2="27" stroke="#404040" stroke-width="1.5"/><line x1="56" y1="13" x2="61" y2="18" stroke="#404040" stroke-width="1.5"/><line x1="79" y1="36" x2="84" y2="41" stroke="#404040" stroke-width="1.5"/><line x1="84" y1="13" x2="79" y2="18" stroke="#404040" stroke-width="1.5"/><line x1="61" y1="36" x2="56" y2="41" stroke="#404040" stroke-width="1.5"/><circle cx="70" cy="27" r="3" fill="#444"/></svg>`,
-
-rv:`<svg viewBox="0 0 140 70" xmlns="http://www.w3.org/2000/svg"><rect width="140" height="70" fill="#0f0f0f"/><polygon points="0,70 70,18 140,70" fill="#2a2a2a"/><polygon points="0,70 70,22 140,70" fill="#222"/><line x1="14" y1="70" x2="66" y2="26" stroke="#1a1a1a" stroke-width="3"/><line x1="28" y1="70" x2="68" y2="30" stroke="#1a1a1a" stroke-width="3"/><line x1="0" y1="60" x2="64" y2="23" stroke="#1a1a1a" stroke-width="3"/><line x1="126" y1="70" x2="74" y2="26" stroke="#181818" stroke-width="3"/><line x1="112" y1="70" x2="72" y2="30" stroke="#181818" stroke-width="3"/><line x1="140" y1="60" x2="76" y2="23" stroke="#181818" stroke-width="3"/><path d="M52,22 Q70,8 88,22 L88,30 Q70,16 52,30 Z" fill="#555"/><path d="M52,30 Q70,16 88,30" fill="none" stroke="#777" stroke-width="1.5"/><rect x="62" y="18" width="16" height="6" fill="#080808"/><line x1="64" y1="19.5" x2="78" y2="19.5" stroke="#303030" stroke-width="0.8"/><line x1="64" y1="21" x2="78" y2="21" stroke="#303030" stroke-width="0.8"/><line x1="64" y1="22.5" x2="78" y2="22.5" stroke="#303030" stroke-width="0.8"/><line x1="66" y1="18" x2="66" y2="24" stroke="#303030" stroke-width="0.8"/><line x1="70" y1="18" x2="70" y2="24" stroke="#303030" stroke-width="0.8"/><line x1="74" y1="18" x2="74" y2="24" stroke="#303030" stroke-width="0.8"/></svg>`,
-
-bv:`<svg viewBox="0 0 140 70" xmlns="http://www.w3.org/2000/svg"><rect width="140" height="70" fill="#0f0f0f"/><polygon points="0,70 0,38 140,28 140,70" fill="#2a2a2a"/><line x1="0" y1="52" x2="140" y2="45" stroke="#1e1e1e" stroke-width="3"/><line x1="0" y1="62" x2="140" y2="56" stroke="#1e1e1e" stroke-width="3"/><line x1="0" y1="42" x2="140" y2="36" stroke="#1e1e1e" stroke-width="3"/><ellipse cx="70" cy="41" rx="32" ry="8" fill="#444"/><path d="M38,41 Q44,24 70,22 Q96,24 102,41 Z" fill="#5a5a5a"/><path d="M38,41 Q44,24 70,22 Q96,24 102,41" fill="none" stroke="#777" stroke-width="1.5"/><path d="M38,41 L102,41 Q100,47 70,50 Q40,47 38,41 Z" fill="#3a3a3a"/><line x1="44" y1="43" x2="96" y2="43" stroke="#222" stroke-width="1.5"/><line x1="43" y1="46" x2="97" y2="46" stroke="#222" stroke-width="1.5"/><line x1="45" y1="49" x2="95" y2="49" stroke="#222" stroke-width="1.5"/><ellipse cx="70" cy="41" rx="16" ry="4" fill="#1a1a1a"/></svg>`,
-
-gr:`<svg viewBox="0 0 140 70" xmlns="http://www.w3.org/2000/svg"><rect width="140" height="70" fill="#151515"/><rect x="0" y="0" width="140" height="70" fill="#222" rx="4"/><polygon points="70,5 15,65 125,65" fill="#2a2a2a"/><rect x="34" y="27" width="72" height="34" rx="2" fill="#141414" stroke="#555" stroke-width="2"/><line x1="37" y1="32" x2="103" y2="32" stroke="#484848" stroke-width="2.5"/><line x1="37" y1="38" x2="103" y2="38" stroke="#484848" stroke-width="2.5"/><line x1="37" y1="44" x2="103" y2="44" stroke="#484848" stroke-width="2.5"/><line x1="37" y1="50" x2="103" y2="50" stroke="#484848" stroke-width="2.5"/><line x1="37" y1="56" x2="103" y2="56" stroke="#484848" stroke-width="2.5"/><line x1="70" y1="28" x2="70" y2="60" stroke="#404040" stroke-width="1"/></svg>`,
-
-gc:`<svg viewBox="0 0 140 70" xmlns="http://www.w3.org/2000/svg"><rect width="140" height="70" fill="#151515"/><rect x="0" y="0" width="140" height="70" fill="#222" rx="4"/><polygon points="70,5 15,65 125,65" fill="#2a2a2a"/><circle cx="70" cy="40" r="25" fill="#141414" stroke="#555" stroke-width="2.5"/><circle cx="70" cy="40" r="20" fill="#141414"/><line x1="70" y1="15" x2="70" y2="65" stroke="#484848" stroke-width="2"/><line x1="45" y1="40" x2="95" y2="40" stroke="#484848" stroke-width="2"/><line x1="52" y1="22" x2="88" y2="58" stroke="#484848" stroke-width="1.5"/><line x1="88" y1="22" x2="52" y2="58" stroke="#484848" stroke-width="1.5"/><circle cx="70" cy="40" r="13" fill="none" stroke="#3a3a3a" stroke-width="1.5"/><circle cx="70" cy="40" r="7" fill="none" stroke="#3a3a3a" stroke-width="1.5"/><circle cx="70" cy="40" r="3" fill="#505050"/></svg>`,
-
-tb:`<svg viewBox="0 0 140 70" xmlns="http://www.w3.org/2000/svg"><rect width="140" height="70" fill="#0f0f0f"/><rect x="0" y="55" width="140" height="15" fill="#2a2a2a"/><line x1="0" y1="55" x2="140" y2="55" stroke="#444" stroke-width="1.5"/><rect x="57" y="48" width="26" height="10" rx="3" fill="#505050"/><rect x="48" y="56" width="44" height="6" rx="2" fill="#3a3a3a"/><ellipse cx="70" cy="35" rx="28" ry="25" fill="#4a4a4a" stroke="#666" stroke-width="1.5"/><path d="M70,10 Q84,15 90,28 Q80,20 70,20 Z" fill="#6a6a6a"/><path d="M70,10 Q56,15 50,28 Q60,20 70,20 Z" fill="#585858"/><path d="M42,28 Q40,42 50,52 Q47,40 55,34 Z" fill="#555"/><path d="M98,28 Q100,42 90,52 Q93,40 85,34 Z" fill="#606060"/><path d="M52,60 Q64,56 88,60 Q76,52 70,48 Z" fill="#505050"/><ellipse cx="70" cy="12" rx="10" ry="3.5" fill="#777"/></svg>`,
-
-pv:`<svg viewBox="0 0 140 70" xmlns="http://www.w3.org/2000/svg"><rect width="140" height="70" fill="#0f0f0f"/><polygon points="0,70 0,36 140,26 140,70" fill="#252525"/><line x1="0" y1="50" x2="140" y2="44" stroke="#1c1c1c" stroke-width="3"/><line x1="0" y1="60" x2="140" y2="55" stroke="#1c1c1c" stroke-width="3"/><line x1="0" y1="40" x2="140" y2="35" stroke="#1c1c1c" stroke-width="3"/><ellipse cx="70" cy="40" rx="30" ry="8" fill="#3a3a3a"/><path d="M40,40 Q44,22 70,20 Q96,22 100,40 Z" fill="#585858" stroke="#707070" stroke-width="1.5"/><line x1="48" y1="32" x2="52" y2="28" stroke="#3a3a3a" stroke-width="2.5"/><line x1="57" y1="25" x2="63" y2="22" stroke="#3a3a3a" stroke-width="2.5"/><line x1="70" y1="21" x2="70" y2="21" stroke="#3a3a3a" stroke-width="2.5"/><line x1="77" y1="22" x2="83" y2="25" stroke="#3a3a3a" stroke-width="2.5"/><line x1="88" y1="28" x2="92" y2="32" stroke="#3a3a3a" stroke-width="2.5"/><circle cx="70" cy="32" r="8" fill="#2a2a2a" stroke="#555" stroke-width="1.5"/><circle cx="70" cy="32" r="4" fill="#444"/><line x1="66" y1="32" x2="74" y2="32" stroke="#777" stroke-width="1"/><line x1="70" y1="28" x2="70" y2="36" stroke="#777" stroke-width="1"/></svg>`,
-
-sv:`<svg viewBox="0 0 140 70" xmlns="http://www.w3.org/2000/svg"><rect width="140" height="70" fill="#0f0f0f"/><polygon points="0,70 0,40 140,30 140,70" fill="#222"/><line x1="0" y1="55" x2="140" y2="49" stroke="#1a1a1a" stroke-width="3"/><line x1="0" y1="65" x2="140" y2="59" stroke="#1a1a1a" stroke-width="3"/><ellipse cx="70" cy="44" rx="25" ry="6" fill="#3a3a3a"/><path d="M45,44 Q48,32 70,30 Q92,32 95,44 Z" fill="#484848" stroke="#555" stroke-width="1"/><rect x="30" y="8" width="80" height="26" rx="3" fill="#0d1f44" stroke="#1a44aa" stroke-width="1.5" transform="rotate(-3 70 21)"/><line x1="33" y1="14" x2="108" y2="12" stroke="#082088" stroke-width="1"/><line x1="34" y1="19" x2="109" y2="17" stroke="#082088" stroke-width="1"/><line x1="35" y1="24" x2="110" y2="22" stroke="#082088" stroke-width="1"/><line x1="35" y1="29" x2="110" y2="27" stroke="#082088" stroke-width="1"/><line x1="52" y1="8" x2="50" y2="34" stroke="#082088" stroke-width="1"/><line x1="70" y1="7" x2="68" y2="33" stroke="#082088" stroke-width="1"/><line x1="88" y1="7" x2="86" y2="33" stroke="#082088" stroke-width="1"/><rect x="30" y="8" width="28" height="10" rx="2" fill="#1a3a77" opacity="0.5" transform="rotate(-3 70 21)"/><circle cx="70" cy="38" r="4" fill="#1a1a1a" opacity="0.8"/></svg>`,
-
-rb:`<svg viewBox="0 0 140 70" xmlns="http://www.w3.org/2000/svg"><rect width="140" height="70" fill="#0f0f0f"/><polygon points="30,5 50,5 85,65 65,65" fill="#3d2a10"/><polygon points="110,5 90,5 55,65 75,65" fill="#3d2a10"/><rect x="10" y="52" width="120" height="18" fill="#7a5c1a"/><ellipse cx="25" cy="52" rx="10" ry="5" fill="#9a7a30"/><ellipse cx="45" cy="52" rx="10" ry="5" fill="#9a7a30"/><ellipse cx="65" cy="52" rx="10" ry="5" fill="#9a7a30"/><ellipse cx="85" cy="52" rx="10" ry="5" fill="#9a7a30"/><ellipse cx="105" cy="52" rx="10" ry="5" fill="#9a7a30"/><ellipse cx="125" cy="52" rx="10" ry="5" fill="#9a7a30"/><path d="M50,5 L50,48 Q70,42 90,48 L90,5" fill="#c8a060" opacity="0.35"/><polygon points="70,42 66,22 74,22" fill="#f97316"/><line x1="70" y1="44" x2="70" y2="20" stroke="#f97316" stroke-width="2.5"/></svg>`
+// ─── Vent text descriptions ──────────────────────────────
+const VD = {
+  ss:'Continuous perforated aluminum strip running along the full length of the eave or soffit. Allows cool outside air to enter the attic evenly along the entire roof edge. Very efficient — eliminates dead spots between individual vent panels.',
+  sp:'Rectangular perforated panel installed flush into the soffit. Common sizes: 8×16″, 16×8″, 4×16″, 6×16″. One panel per rafter bay. Easy to install and replace — available at any hardware store.',
+  sr:'Round screened disc pressed into a circular cutout in the soffit or eave. 3″ or 4″ diameter. Quick retrofit — cut a hole, press in. Lower NFA per unit than strip or panel vents.',
+  rb:'Cardboard or foam chute stapled between rafters directly above the soffit vent opening. Not a vent — a channel that keeps blown-in insulation from blocking the soffit airflow path. Required by IRC when blown insulation is used.',
+  rv:'Continuous cap installed along the entire roof ridge under the cap shingles. Internal mesh filters insects and debris. The gold standard for passive exhaust — works with any wind direction and pairs perfectly with soffit intake.',
+  bv:'Low dome (turtle vent) nailed directly to the roof deck between the ridge and eave. Hot air exits through louvered sides. Passive exhaust — each unit covers roughly 50–75 sq ft of attic floor. Common when adding ridge vent is not practical.',
+  gr:'Rectangular louvered frame installed in the gable-end wall triangle. Passive — air flows in or out depending on wind direction. Most effective when paired with soffit vents on the opposite wall to create cross-ventilation.',
+  gc:'Round decorative louvered disc set into the gable triangle. Same passive function as a rectangular gable vent. Often used for aesthetic reasons — matching architecture with arched or circular design elements.',
+  tb:'Wind-driven spinning turbine (whirlybird) mounted on the roof. Rotating curved fins create negative pressure that pulls hot air out. Effective in regularly windy climates — stops spinning in still air and loses effectiveness.',
+  pv:'Electric-motor dome fan mounted on the roof deck. The most powerful active exhaust option. Rated in CFM by manufacturers — enter the NFA sq in equivalent from the spec sheet (typically 100–400 sq in). Requires wiring.',
+  sv:'Solar-panel powered attic dome fan. Activates automatically when sunlight hits the panel — no wiring needed. Capacity similar to a small power vent. Zero operating cost, but output drops on cloudy days.'
 };
 
 const VM = {
@@ -848,20 +836,6 @@ const VM = {
   'solar-sm':'sv','solar-20w':'sv','solar-30w':'sv','solar-40w':'sv'
 };
 
-const VM_LABEL = {
-  ss:'Perforated aluminum strip along eave/soffit',
-  sp:'Rectangular perforated panel, installed flush in soffit',
-  sr:'Round screened vent disc in soffit or eave',
-  rb:'Cardboard/foam channel keeps insulation off soffit vent',
-  rv:'Cap running along roof peak — filter mesh inside',
-  bv:'Low-profile dome on roof deck with louvered sides',
-  gr:'Louvered rectangular frame in gable-end wall',
-  gc:'Decorative circular louver in gable triangle',
-  tb:'Wind-driven spinning ventilator (whirlybird)',
-  pv:'Electric-motor dome vent, rated in CFM',
-  sv:'Solar-panel powered attic fan with dome housing'
-};
-
 // ─── Vent type change ───────────────────────────────────
 function onVentTypeChange() {
   const sel = document.getElementById('ventType');
@@ -872,12 +846,21 @@ function onVentTypeChange() {
   document.getElementById('pav-note').style.display = opt.value === 'pav' ? 'block' : 'none';
   document.getElementById('custom-role-wrap').style.display = opt.dataset.role === 'both' ? 'block' : 'none';
 
-  // Vent preview image
   const key = VM[opt.value];
   const card = document.getElementById('vent-preview-card');
-  if (key && VS[key]) {
-    document.getElementById('vent-preview-img').innerHTML = VS[key];
-    document.getElementById('vent-preview-label').textContent = VM_LABEL[key] || '';
+  if (key && VD[key]) {
+    const badge = document.getElementById('vent-preview-badge');
+    if (key === 'rb') {
+      badge.textContent = 'Baffle / Channel';
+      badge.className = 'vent-preview-badge badge-baffle';
+    } else if ((opt.dataset.role || 'exhaust') === 'intake') {
+      badge.textContent = 'Intake';
+      badge.className = 'vent-preview-badge badge-intake';
+    } else {
+      badge.textContent = 'Exhaust';
+      badge.className = 'vent-preview-badge badge-exhaust';
+    }
+    document.getElementById('vent-preview-desc').textContent = VD[key];
     card.style.display = 'block';
   } else {
     card.style.display = 'none';
@@ -1069,39 +1052,8 @@ function buildResults() {
   `;
 }
 
-// ─── Inject thumbnails into Code reference table ────────
-function injectTableThumbs() {
-  const TABLE_MAP = {
-    'Soffit vent, continuous':'ss','Drip edge vent':'ss','Fascia vent strip':'ss',
-    'Soffit vent 4×16':'sp','Soffit vent 6×16':'sp','Soffit vent 8×16':'sp',
-    'Soffit vent 16×8':'sp','Soffit vent 8×8':'sp',
-    'Soffit vent round 3″':'sr','Soffit vent round 4″':'sr',
-    'Under-eave vent 3″':'sr','Under-eave vent 4″':'sr',
-    'Ridge vent standard':'rv','Ridge vent high-flow':'rv','Hip-ridge vent':'rv',
-    'Roof vent / turtle, small':'bv','Roof vent / turtle, large':'bv','Roof vent / turtle, XL':'bv',
-    'Box vent (off-ridge), sm':'bv','Box vent (off-ridge), lg':'bv',
-    'Gable vent 8×16':'gr','Gable vent 12×18':'gr','Gable vent 14×24':'gr',
-    'Gable vent 16×24':'gr','Gable vent 18×24':'gr','Gable vent 24×30':'gr',
-    'Gable vent round 12″':'gc','Gable vent round 18″':'gc',
-    'Turbine vent 12″':'tb','Turbine vent 14″':'tb',
-    'Power ventilator ~1000 CFM':'pv','Power ventilator ~1500 CFM':'pv',
-    '☀️ Solar vent 20W':'sv','☀️ Solar vent 30W':'sv','☀️ Solar vent 40W high-flow':'sv'
-  };
-  document.querySelectorAll('.ref-table tbody tr').forEach(tr => {
-    const td = tr.querySelector('td:first-child');
-    if (!td || td.colSpan > 1) return;
-    const txt = td.textContent.trim();
-    const key = Object.keys(TABLE_MAP).find(k => txt.startsWith(k));
-    if (!key) return;
-    const svgKey = TABLE_MAP[key];
-    if (!VS[svgKey]) return;
-    td.innerHTML = `<div class="vent-cell"><div class="vtb">${VS[svgKey]}</div><span>${txt}</span></div>`;
-  });
-}
-
 // Init
 onVentTypeChange();
-injectTableThumbs();
 </script>
 </body>
 </html>
